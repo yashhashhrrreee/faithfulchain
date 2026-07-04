@@ -1,0 +1,131 @@
+@startuml FaithfulChain — Data Model
+
+!theme plain
+skinparam backgroundColor #FAFAFA
+skinparam defaultFontName Inter
+skinparam defaultFontSize 12
+skinparam shadowing false
+skinparam RoundCorner 10
+skinparam Padding 6
+skinparam classAttributeIconSize 0
+
+skinparam class {
+  BackgroundColor #EEEDFE
+  BorderColor #534AB7
+  FontColor #26215C
+  HeaderBackgroundColor #AFA9EC
+  HeaderFontColor #26215C
+  FontSize 12
+  AttributeFontSize 11
+  AttributeFontColor #3C3489
+}
+
+skinparam arrow {
+  Color #534AB7
+  FontColor #534AB7
+  FontSize 11
+  Thickness 1.2
+}
+
+skinparam note {
+  BackgroundColor #EAF3DE
+  BorderColor #3B6D11
+  FontColor #173404
+  FontSize 11
+}
+
+title FaithfulChain — Pydantic Models and JSONL Data Model
+
+class QuestionRequest {
+  + question : str
+  + domain : Literal["general","medical","legal","math"]
+}
+
+class ReasoningStep {
+  + id : int
+  + text : str
+  + cites : list[int]
+  + is_conclusion : bool
+}
+
+class ReasonerResponse {
+  + session_id : str  <<uuid>>
+  + steps : list[ReasoningStep]
+  + answer : str
+}
+
+class AuditScore {
+  + step_id : int
+  + logical_validity : float  <<0.0–1.0>>
+  + reference_integrity : float  <<0.0–1.0>>
+  + necessity_score : float  <<0.0–1.0>>
+  + explanation : str
+  + flagged : bool
+  ..Thresholds..
+  THRESHOLD_LOGICAL_VALIDITY = 0.75
+  THRESHOLD_REFERENCE_INTEGRITY = 0.80
+  THRESHOLD_NECESSITY_SCORE = 0.65
+}
+
+class AuditResponse {
+  + session_id : str  <<uuid>>
+  + audits : list[AuditScore]
+}
+
+class VerdictRequest {
+  + session_id : str  <<uuid>>
+  + step_id : int
+  + auditor_flagged : bool
+  + human_verdict : Literal["agree","disagree","unsure"]
+  + domain : str
+}
+
+class StatsResponse {
+  + session_id : str
+  + total_steps : int
+  + total_flagged : int
+  + human_disagreements : int
+  + divergence_rate : float
+  + worst_dimension : str
+}
+
+class DivergenceRecord {
+  <<JSONL record>>
+  + session_id : str
+  + timestamp : str  <<ISO 8601>>
+  + domain : str
+  + question_length : int
+  + step_id : int
+  + step_text : str
+  + auditor_flagged : bool
+  + logical_validity : float
+  + reference_integrity : float
+  + necessity_score : float
+  + explanation : str
+  + human_verdict : str
+  + diverged : bool
+}
+
+note right of DivergenceRecord
+  **diverged = true** when
+  human_verdict == "disagree"
+  This is the primary
+  research signal
+end note
+
+note right of AuditScore
+  **Flagged = true** if
+  ANY dimension falls
+  below its threshold
+  (OR logic, not AND)
+end note
+
+QuestionRequest ..> ReasonerResponse : /api/reason →
+ReasonerResponse *-- ReasoningStep : contains
+ReasonerResponse ..> AuditResponse : /api/audit →
+AuditResponse *-- AuditScore : contains
+VerdictRequest ..> DivergenceRecord : /api/verdict → appends
+AuditScore ..> VerdictRequest : flagged steps trigger
+DivergenceRecord ..> StatsResponse : /api/stats aggregates
+
+@enduml
