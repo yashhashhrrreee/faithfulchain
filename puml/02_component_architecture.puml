@@ -1,0 +1,127 @@
+@startuml FaithfulChain — Component Architecture
+
+!theme plain
+skinparam backgroundColor #FAFAFA
+skinparam defaultFontName Inter
+skinparam defaultFontSize 13
+skinparam shadowing false
+skinparam RoundCorner 10
+skinparam Padding 6
+
+skinparam component {
+  BackgroundColor #EEEDFE
+  BorderColor #534AB7
+  FontColor #26215C
+  FontSize 12
+}
+
+skinparam package {
+  BackgroundColor #F8F8FF
+  BorderColor #AFA9EC
+  FontColor #3C3489
+  FontSize 14
+  Style rectangle
+}
+
+skinparam database {
+  BackgroundColor #EAF3DE
+  BorderColor #3B6D11
+  FontColor #173404
+}
+
+skinparam cloud {
+  BackgroundColor #E1F5EE
+  BorderColor #0F6E56
+  FontColor #04342C
+}
+
+skinparam arrow {
+  Color #534AB7
+  FontColor #534AB7
+  FontSize 11
+  Thickness 1.2
+}
+
+title FaithfulChain — Component Architecture
+
+package "Frontend — React + Vite" {
+  [InputPanel] as IP
+  note right of IP
+    Domain <select> dropdown
+    Neomorphic textarea
+    Analyse button
+  end note
+
+  [ChainPanel] as CP
+  note right of CP
+    Accordion steps
+    Colour-coded borders
+    Score bars per step
+  end note
+
+  [VerdictPanel] as VP
+  note right of VP
+    Progress bar
+    Auditor explanation
+    3-button verdict UI
+  end note
+
+  [StatsPanel] as SP
+  [EventLog] as EL
+  note right of EL
+    Colour-coded dots
+    Error lookup codes
+    Max 10 entries
+  end note
+
+  [api.js] as API
+}
+
+package "Backend — FastAPI" {
+  [main.py\n5 REST routes + CORS] as MAIN
+
+  package "Core modules" {
+    [claude_service.py\nasync Claude caller] as CS
+    [prompts.py\nREASONER + AUDITOR] as PR
+    [models.py\nPydantic schemas] as MD
+    [storage.py\nJSONL read/write] as ST
+  }
+}
+
+cloud "Anthropic API\nclaude-sonnet-4-6" as ANT {
+  [Reasoner call] as RC
+  [Auditor call] as AC
+}
+
+database "data/\ndivergence_log.jsonl" as DB
+
+IP --> API : question + domain
+CP --> API : display steps
+VP --> API : POST /api/verdict
+SP --> API : GET /api/stats
+EL --> API : error events
+
+API --> MAIN : HTTP requests
+
+MAIN --> CS : call_claude()
+MAIN --> MD : validate I/O
+MAIN --> ST : read/write log
+
+CS --> PR : load system prompt
+CS --> RC : /api/reason
+CS --> AC : /api/audit
+
+ST --> DB : append verdict
+ST --> DB : read stats
+
+RC --> ANT
+AC --> ANT
+
+note bottom of DB
+  One JSONL record per verdict:
+  session_id · domain · step_id
+  auditor_scores · human_verdict
+  diverged (bool) — key signal
+end note
+
+@enduml
