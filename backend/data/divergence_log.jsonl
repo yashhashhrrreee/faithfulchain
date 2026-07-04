@@ -1,0 +1,6 @@
+{"session_id": "sess-1", "timestamp": "2026-07-02T19:08:48.457523+00:00", "domain": "math", "step_id": 1, "auditor_flagged": true, "human_verdict": "agree", "diverged": false}
+{"session_id": "s42", "timestamp": "2026-07-02T19:08:48.461524+00:00", "domain": "math", "step_id": 1, "auditor_flagged": true, "human_verdict": "agree", "diverged": false}
+{"session_id": "s42", "timestamp": "2026-07-02T19:08:48.463524+00:00", "domain": "math", "step_id": 2, "auditor_flagged": true, "human_verdict": "disagree", "diverged": true}
+{"session_id": "sess-1", "timestamp": "2026-07-02T19:13:22.356640+00:00", "domain": "math", "step_id": 1, "auditor_flagged": true, "human_verdict": "agree", "diverged": false}
+{"session_id": "s42", "timestamp": "2026-07-02T19:13:22.368641+00:00", "domain": "math", "step_id": 1, "auditor_flagged": true, "human_verdict": "agree", "diverged": false}
+{"session_id": "s42", "timestamp": "2026-07-02T19:13:22.375640+00:00", "domain": "math", "step_id": 2, "auditor_flagged": true, "human_verdict": "disagree", "diverged": true}

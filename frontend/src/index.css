@@ -1,0 +1,132 @@
+@import "tailwindcss";
+
+:root {
+  --neo-bg: #e8eaf0;
+  --neo-shadow-light: #ffffff;
+  --neo-shadow-dark: #c5c8d4;
+  --neo-text: #3a3d4a;
+  --neo-text-muted: #7a7e8f;
+  --neo-accent: #6c63ff;
+  --neo-accent-glow: #6c63ff22;
+  --neo-success: #22c98a;
+  --neo-warning: #f5a623;
+  --neo-danger: #e24b4a;
+  --neo-card: #e8eaf0;
+  --neo-radius: 18px;
+}
+
+.dark {
+  --neo-bg: #1e2130;
+  --neo-shadow-light: #252a3d;
+  --neo-shadow-dark: #13161f;
+  --neo-text: #e0e3f0;
+  --neo-text-muted: #7a7e9f;
+  --neo-card: #1e2130;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  background: var(--neo-bg);
+  color: var(--neo-text);
+}
+
+textarea, select, input, button {
+  font-family: inherit;
+}
+
+select {
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+/* Neomorphic surface variants */
+.neo-raised {
+  background: var(--neo-card);
+  border-radius: var(--neo-radius);
+  box-shadow: 6px 6px 14px var(--neo-shadow-dark), -6px -6px 14px var(--neo-shadow-light);
+}
+
+.neo-raised-sm {
+  background: var(--neo-card);
+  border-radius: 12px;
+  box-shadow: 4px 4px 10px var(--neo-shadow-dark), -4px -4px 10px var(--neo-shadow-light);
+}
+
+.neo-inset {
+  background: var(--neo-bg);
+  border-radius: 12px;
+  box-shadow: inset 4px 4px 10px var(--neo-shadow-dark), inset -4px -4px 10px var(--neo-shadow-light);
+}
+
+/* Buttons */
+.neo-btn {
+  background: var(--neo-card);
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 4px 4px 10px var(--neo-shadow-dark), -4px -4px 10px var(--neo-shadow-light);
+  color: var(--neo-text);
+  transition: box-shadow 0.15s ease;
+}
+
+.neo-btn:hover:not(:disabled) {
+  box-shadow: 5px 5px 13px var(--neo-shadow-dark), -5px -5px 13px var(--neo-shadow-light);
+}
+
+.neo-btn:active:not(:disabled) {
+  box-shadow: inset 2px 2px 6px var(--neo-shadow-dark), inset -2px -2px 6px var(--neo-shadow-light);
+}
+
+.neo-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.neo-btn-accent {
+  background: var(--neo-accent);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 4px 4px 10px var(--neo-shadow-dark), -4px -4px 10px var(--neo-shadow-light);
+  transition: filter 0.15s ease, box-shadow 0.15s ease;
+}
+
+.neo-btn-accent:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+.neo-btn-accent:active:not(:disabled) {
+  box-shadow: inset 2px 2px 6px rgba(0,0,0,0.25);
+}
+
+.neo-btn-accent:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Step accordion body — smooth max-height transition */
+.step-body {
+  overflow: hidden;
+  transition: max-height 0.25s ease;
+}
+
+/* 3-column responsive grid */
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  align-items: start;
+}
+
+@media (min-width: 900px) {
+  .main-grid {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
