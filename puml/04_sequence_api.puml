@@ -1,0 +1,112 @@
+@startuml FaithfulChain — API Sequence
+
+!theme plain
+skinparam backgroundColor #FAFAFA
+skinparam defaultFontName Inter
+skinparam defaultFontSize 12
+skinparam shadowing false
+skinparam RoundCorner 6
+skinparam SequenceMessageAlignment center
+skinparam responseMessageBelowArrow true
+
+skinparam participant {
+  BackgroundColor #EEEDFE
+  BorderColor #534AB7
+  FontColor #26215C
+  FontSize 12
+}
+
+skinparam sequence {
+  ArrowColor #534AB7
+  ArrowThickness 1.2
+  LifeLineBorderColor #AFA9EC
+  LifeLineBackgroundColor #F8F8FF
+  DividerBackgroundColor #F1EFE8
+  DividerBorderColor #D3D1C7
+  GroupBackgroundColor #FAEEDA
+  GroupBorderColor #854F0B
+  GroupBodyBackgroundColor #FAFAF5
+  NoteBackgroundColor #EAF3DE
+  NoteBorderColor #3B6D11
+}
+
+title FaithfulChain — Full Session API Sequence
+
+actor "User" as U
+participant "React\nFrontend" as FE
+participant "FastAPI\nBackend" as BE
+participant "claude_service\n.py" as CS
+participant "Claude\nReasoner" as CR
+participant "Claude\nAuditor" as CA
+database "JSONL\nStorage" as DB
+
+== Phase 1 — Reasoning ==
+
+U -> FE : Submit question + domain
+FE -> BE : POST /api/reason\n{ question, domain }
+BE -> CS : call_claude(REASONER_SYSTEM, question)
+CS -> CR : POST /v1/messages\n{ model, system, messages }
+
+note over CR
+  Generates numbered
+  atomic steps in JSON
+end note
+
+CR --> CS : { steps: [...], answer }
+CS --> BE : parsed JSON dict
+BE --> FE : ReasonerResponse\n{ session_id, steps, answer }
+FE -> FE : Render ChainPanel\n(steps collapsed)
+
+== Phase 2 — Auditing ==
+
+FE -> BE : POST /api/audit\n{ session_id, steps }
+BE -> CS : call_claude(AUDITOR_SYSTEM, steps_json)
+CS -> CA : POST /v1/messages\n{ model, system, messages }
+
+note over CA
+  Scores each step:
+  logical_validity
+  reference_integrity
+  necessity_score
+  flagged (bool)
+end note
+
+CA --> CS : { audits: [...] }
+CS --> BE : parsed JSON dict
+BE --> FE : AuditResponse\n{ session_id, audits }
+FE -> FE : Merge steps + audits\nPre-expand flagged steps\nActivate VerdictPanel
+
+== Phase 3 — Human Review (per flagged step) ==
+
+loop for each flagged step
+
+  U -> FE : Select verdict\n(Agree / Disagree / Unsure)
+  FE -> BE : POST /api/verdict\n{ session_id, step_id,\n  auditor_flagged,\n  human_verdict, domain }
+  BE -> DB : append_verdict()\nWrite JSONL record
+
+  note over DB
+    {
+      session_id, timestamp,
+      domain, step_id,
+      step_text, auditor_scores,
+      human_verdict,
+      diverged: bool
+    }
+  end note
+
+  DB --> BE : ok
+  BE --> FE : { ok: true }
+  FE -> FE : Advance to next\nflagged step
+
+end
+
+== Phase 4 — Session Statistics ==
+
+FE -> BE : GET /api/stats/{session_id}
+BE -> DB : load_all_verdicts()\nfilter by session_id
+DB --> BE : verdict records
+BE -> BE : compute_stats()\ndivergence_rate\nworst_dimension
+BE --> FE : StatsResponse
+FE -> U : Display session results\n(divergence rate, flagged,\n disagreements, weakest dim)
+
+@enduml
