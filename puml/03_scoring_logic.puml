@@ -1,0 +1,113 @@
+@startuml FaithfulChain — Auditor Scoring Logic
+
+!theme plain
+skinparam backgroundColor #FAFAFA
+skinparam defaultFontName Inter
+skinparam defaultFontSize 13
+skinparam shadowing false
+skinparam RoundCorner 10
+skinparam Padding 8
+skinparam linetype ortho
+
+skinparam activity {
+  BackgroundColor #EEEDFE
+  BorderColor #534AB7
+  FontColor #26215C
+  FontSize 13
+  DiamondBackgroundColor #FAEEDA
+  DiamondBorderColor #854F0B
+  DiamondFontColor #412402
+}
+
+skinparam note {
+  BackgroundColor #F1EFE8
+  BorderColor #5F5E5A
+  FontColor #2C2C2A
+  FontSize 11
+}
+
+title FaithfulChain — Auditor Scoring and Flagging Logic
+
+|Reasoner|
+start
+:Generate reasoning step
+with atomic claim and citations;
+
+|Auditor|
+:Receive step JSON from Reasoner;
+
+fork
+  :Score **Logical Validity**;
+  note right
+    Does the conclusion follow
+    from the stated premises?
+    Threshold ≥ **0.75**
+  end note
+fork again
+  :Score **Reference Integrity**;
+  note right
+    Does it correctly use
+    the steps it cites?
+    Threshold ≥ **0.80**
+  end note
+fork again
+  :Score **Necessity Score**;
+  note right
+    Would removing this step
+    break the final answer?
+    Threshold ≥ **0.65**
+  end note
+end fork
+
+:Compute composite score
+(OR logic — strictest check);
+
+note right
+  **Flagged = true** if
+  ANY one dimension
+  falls below its threshold
+end note
+
+if (Any dimension\nbelow threshold?) then (yes — flagged)
+
+  :Attach explanation text
+  describing the weakness;
+
+  |Human Reviewer|
+  :View step + scores
+  in VerdictPanel;
+
+  if (Human verdict?) then (Agree)
+    :Auditor was correct —
+    log diverged = **false**;
+  else if (verdict?) then (Disagree)
+    :Auditor was wrong —
+    log diverged = **true**\n← research signal;
+  else (Unsure)
+    :Log diverged = **null**
+    (valid research data);
+  endif
+
+  |Storage|
+  :Append full record
+  to divergence_log.jsonl;
+
+else (no — passes)
+
+  |Frontend|
+  :Show step with
+  green border in ChainPanel;
+
+  note right
+    No human action required
+    for passing steps
+  end note
+endif
+
+|Aggregator|
+:Compute session stats:
+divergence rate, worst dimension;
+
+stop
+
+@enduml
