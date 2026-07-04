@@ -1,0 +1,39 @@
+{
+  "name": "faithfulchain",
+  "version": "0.1.0",
+  "description": "Reasoning Faithfulness Auditor — Scalable Oversight research tool built with Claude API",
+  "private": true,
+  "scripts": {
+    "dev:backend": "cd backend && uvicorn main:app --reload --port 8000",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "test:backend": "cd backend && pytest --tb=short -v",
+    "test:frontend": "cd frontend && npm test",
+    "test": "npm run test:backend && npm run test:frontend",
+    "install:backend": "cd backend && pip install -r requirements.txt",
+    "install:frontend": "cd frontend && npm install",
+    "install": "npm run install:backend && npm run install:frontend",
+    "lint:frontend": "cd frontend && npx eslint src/",
+    "build:frontend": "cd frontend && npm run build"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "ai-safety",
+    "scalable-oversight",
+    "chain-of-thought",
+    "faithfulness",
+    "anthropic",
+    "claude"
+  ],
+  "author": "Yashashree Bedmutha <yashashree.bedmutha@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yashhashhrrreee/faithfulchain"
+  }
+}

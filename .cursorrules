@@ -1,0 +1,37 @@
+# .cursorrules — FaithfulChain
+
+# Identity
+You are building FaithfulChain, a reasoning faithfulness auditor for AI chain-of-thought.
+This is a research project for the Anthropic Fellows Program.
+Read CLAUDE.md before writing any code.
+
+# File structure authority
+architecture.md is the source of truth for file locations.
+Do not create files outside the structure defined there without documenting the addition.
+
+# Code quality rules
+- Python: always use type hints, async def for all I/O, docstrings on every function
+- React: functional components only, Tailwind CSS only, no inline styles
+- Never hardcode secrets. ANTHROPIC_API_KEY comes from .env only.
+- Wrap all json.loads() in try/except in Python.
+- All Claude API calls go through backend/claude_service.py only.
+- All Axios calls go through frontend/src/api.js only.
+
+# Testing rules
+- Every logic function needs a test before it is considered done.
+- Mock the Claude API in all tests — tests must pass without a real API key.
+- Run pytest before saying backend work is complete.
+
+# Prompts
+The two Claude system prompts (REASONER_SYSTEM, AUDITOR_SYSTEM) are defined in CLAUDE.md.
+Copy them exactly into backend/prompts.py. Do not paraphrase or shorten them.
+
+# What not to do
+- Do not use LangChain
+- Do not use Redux
+- Do not use a database (JSONL flat file only)
+- Do not write custom CSS (Tailwind only)
+- Do not commit .env
+
+# Progress tracking
+After completing work, update progress.md and check off items in implementation-plan.md.
