@@ -44,6 +44,8 @@ The Reasoner is instructed to produce only necessary, atomic steps — each step
 
 The two-model architecture is deliberate: a single model asked to reason and then audit its own reasoning would face a structural conflict of interest. Separating the roles forces the Auditor to evaluate the Reasoner's output as an independent black-box text artifact, the same way a human reviewer would.
 
+![System Flow](puml/img/01_system_flow.png)
+
 ---
 
 ## The Three Scoring Dimensions
@@ -57,6 +59,8 @@ Each reasoning step is scored on three dimensions, each on a continuous 0.0–1.
 | **Necessity Score** | 0.65 | Would removing this step break the path to the final conclusion? Steps that restate earlier content, add decorative hedging, or introduce claims that are never used downstream score near 0.0. |
 
 The thresholds are intentionally strict. It is better to surface a valid step for human review than to miss a genuinely weak one — especially in contested empirical and normative domains where confident-sounding language can mask poor inferential structure.
+
+![Scoring Logic](puml/img/03_scoring_logic.png)
 
 ---
 
@@ -95,6 +99,8 @@ Every human verdict produces one JSONL record appended to `data/divergence_log.j
 The `diverged` field is the primary research signal: it marks every case where a human reviewer looked at a step the AI auditor flagged and concluded the auditor was wrong (or vice versa). Aggregated across sessions and domains, this field supports direct measurement of AI auditor reliability — and of the counterfactual value of human oversight.
 
 The JSONL format is intentional. It is zero-dependency, human-readable, directly loadable with `pandas.read_json(path, lines=True)`, and portable across research environments without database setup.
+
+![Data Model](puml/img/05_data_model.png)
 
 ---
 
@@ -161,6 +167,8 @@ faithfulchain/
     └── divergence_log.jsonl     # Runtime log (git-ignored)
 ```
 
+![Component Architecture](puml/img/02_component_architecture.png)
+
 ---
 
 ## Getting Started
@@ -196,6 +204,8 @@ npm run dev
 ```
 
 Open `http://localhost:5173`. Select a domain, enter a question, and click **Analyse**. The Reasoner builds a chain-of-thought; the Auditor scores it. Flagged steps appear in the right panel for human verdict. Session statistics are shown after all flags are reviewed.
+
+![API Sequence](puml/img/04_sequence_api.png)
 
 ---
 
