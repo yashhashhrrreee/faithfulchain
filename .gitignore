@@ -1,0 +1,23 @@
+# Environment
+backend/.env
+.env
+
+# Python
+backend/venv/
+backend/__pycache__/
+backend/**/__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Data (research log — not committed)
+data/divergence_log.jsonl
+
+# Node
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# OS
+.DS_Store
+Thumbs.db
