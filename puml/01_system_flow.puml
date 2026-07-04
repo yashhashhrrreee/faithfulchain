@@ -1,0 +1,103 @@
+@startuml FaithfulChain — System Flow
+
+!theme plain
+skinparam backgroundColor #FAFAFA
+skinparam defaultFontName Inter
+skinparam defaultFontSize 13
+skinparam ArrowColor #534AB7
+skinparam ArrowThickness 1.5
+skinparam RoundCorner 10
+skinparam Padding 8
+skinparam shadowing false
+skinparam NoteBackgroundColor #EEEDFE
+skinparam NoteBorderColor #AFA9EC
+
+skinparam activity {
+  BackgroundColor #EEEDFE
+  BorderColor #534AB7
+  FontColor #26215C
+  FontSize 13
+  DiamondBackgroundColor #FAEEDA
+  DiamondBorderColor #854F0B
+  DiamondFontColor #412402
+}
+
+skinparam activityArrow {
+  Color #534AB7
+  FontColor #534AB7
+  FontSize 11
+}
+
+title FaithfulChain — End-to-End System Flow
+
+start
+
+:User submits a question
+and selects a domain
+(General / Medical / Legal / Math);
+
+note right
+  Domain metadata is stored
+  in every JSONL record
+  for research segmentation
+end note
+
+:POST /api/reason
+Claude **Reasoner** call;
+
+note right
+  System prompt enforces:
+  — Numbered atomic steps
+  — Explicit [Step N] citations
+  — JSON-only output
+end note
+
+:Step parser merges
+Reasoner output;
+
+:POST /api/audit
+Claude **Auditor** call;
+
+note right
+  Auditor scores each step on:
+  — Logical validity  (≥ 0.75)
+  — Reference integrity (≥ 0.80)
+  — Necessity score  (≥ 0.65)
+  Flagged if ANY threshold breached
+end note
+
+if (Any steps flagged?) then (yes)
+  repeat
+    :Show flagged step
+    to human reviewer;
+
+    :Human selects verdict:
+    **Agree** / **Disagree** / **Unsure**;
+
+    :POST /api/verdict
+    Record saved to JSONL;
+
+    note right
+      diverged = true
+      when human disagrees
+      with Auditor flag
+    end note
+
+  repeat while (More flagged steps?) is (yes)
+  ->no;
+else (no)
+  note right
+    Step passes — shown
+    green in ChainPanel
+  end note
+endif
+
+:GET /api/stats/{session_id}
+Session statistics computed;
+
+:Display divergence rate,
+flagged count, weakest dimension;
+
+stop
+
+@enduml
